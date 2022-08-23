@@ -22,3 +22,10 @@
 3、旋转验证码：
 
   ![image](https://user-images.githubusercontent.com/51218979/180716375-95cb2e84-ef7b-4bea-9f91-68a89a757ad0.png)
+
+
+任务清单（排名不分先后）：
+1、添加requirements.txt
+2、图标点选验证码
+3、代码优化
+4、中文注释
