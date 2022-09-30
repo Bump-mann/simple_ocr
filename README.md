@@ -42,3 +42,6 @@
   
   
  您可以在项目目录下 pip install -i requirements.txt 快速安装所需库
+ 
+ 
+ 在test文件夹下的test.py里有调用示范代码
