@@ -30,5 +30,15 @@
 4、图标点选验证码：
 
 
-python::3.8
-您可以在项目目录下 pip install -i requirements.txt 快速安装所需库
+由于模型文件较大，单独放在百度云盘了，下载后放在项目目录下即可
+模型下载地址：
+链接：https://pan.baidu.com/s/1cNTjREhlXhsbKb7_hsJYwQ?pwd=maec 
+提取码：maec
+
+
+开发测试环境：
+  python::3.8
+  3060显卡
+  
+  
+ 您可以在项目目录下 pip install -i requirements.txt 快速安装所需库
