@@ -1,94 +1,174 @@
+import cv2
+import numpy as np
 
 import json
 from django.http import HttpResponse
-from ocr_code import my_ocr
+from ocr_code import spin_img
 from ocr_code import acreage
 from ocr_code import hua_kuai
 import base64
-my_ocr = my_ocr.my_ocr()
+from ocr_code import img_similarity
+from ocr_code import img_division
 
 
-#旋转
+#如果不使用旋转验证码识别可注释掉
+spin_img = spin_img.my_ocr()
+
+
+
+# 旋转
 def ocr(request):
-   resp = {}
+    resp = {}
 
-   if request.method == 'POST':
-      img = request.POST.get('img')
-      if img:
-         img  = base64.b64decode(img)
-      else:
-         resp['errorcode'] = '请携带img参数，img:base64编码后的图片二进制'
-         return HttpResponse(json.dumps(resp), content_type="application/json")
+    if request.method == 'POST':
+        img = request.POST.get('img')
+        if img:
+            img = base64.b64decode(img)
+        else:
+            resp['errorcode'] = '请携带img参数，img:base64编码后的图片二进制'
+            return HttpResponse(json.dumps(resp), content_type="application/json")
+
+        with open('./data/旋转角度/1.png', 'wb') as f:
+            f.write(img)
+        f.close()
+
+        result = spin_img.identification()
+        resp['detail'] = result
+        resp['explain'] = '顺时针旋转角度'
 
 
-      with open('1.png','wb')as f:
-         f.write(img)
-      f.close()
+        if request.POST.get('show','') == 'True':
+            img_init = cv2.imdecode(np.fromfile('./data/旋转角度/1.png', dtype=np.uint8), 1)
 
-      result = my_ocr.identification('./1.png')
-      resp['detail'] = result
-      resp['explain'] = '顺时针旋转角度'
+            spin_img.rotate_img(img_init, 360-int(result))
 
 
-      return HttpResponse(json.dumps(resp), content_type="application/json")
-   else:
-      resp = {'errorcode': 100, 'detail': 'get啥呢，去post'}
-      return HttpResponse(json.dumps(resp), content_type="application/json")
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    else:
+        resp = {'errorcode': 100, 'detail': 'get啥呢，去post'}
+        return HttpResponse(json.dumps(resp), content_type="application/json")
 
-#面积
+
+# 面积
 def acreages(request):
-   resp = {}
+    resp = {}
 
-   if request.method == 'POST':
-      img = request.POST.get('img')
-      if img:
-         img  = base64.b64decode(img)
-      else:
-         resp['errorcode'] = '请携带img参数，img:base64编码后的图片二进制'
-         return HttpResponse(json.dumps(resp), content_type="application/json")
+    if request.method == 'POST':
+        img = request.POST.get('img')
+        if img:
+            img = base64.b64decode(img)
+        else:
+            resp['errorcode'] = '请携带img参数，img:base64编码后的图片二进制'
+            return HttpResponse(json.dumps(resp), content_type="application/json")
 
-
-      with open('1.png','wb')as f:
-         f.write(img)
-      f.close()
-
-      acreages = acreage.Acreage()
-      result = acreages.mains()
-      resp['detail'] = result
-      resp['explain'] = '点击位置的坐标'
+        with open('./data/面积点选/1.png', 'wb') as f:
+            f.write(img)
+        f.close()
 
 
-      return HttpResponse(json.dumps(resp), content_type="application/json")
-   else:
-      resp = {'errorcode': 100, 'detail': 'get啥呢，去post'}
-      return HttpResponse(json.dumps(resp), content_type="application/json")
+        acreages = acreage.Acreage()
+        result = acreages.mains()
+        resp['detail'] = result
+        resp['explain'] = '点击位置的坐标'
+        if request.POST.get('show') == 'True':
+            pass
+
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    else:
+        resp = {'errorcode': 100, 'detail': 'get啥呢，去post'}
+        return HttpResponse(json.dumps(resp), content_type="application/json")
 
 
-
-#滑块
+# 滑块
 def slider(request):
-   resp = {}
+    resp = {}
 
-   if request.method == 'POST':
-      img = request.POST.get('img')
-      if img:
-         img = base64.b64decode(img)
-      else:
-         resp['errorcode'] = '请携带img参数(带缺口的背景图片)，img:base64编码后的图片二进制'
-         return HttpResponse(json.dumps(resp), content_type="application/json")
+    if request.method == 'POST':
+        img = request.POST.get('img')
+        if img:
+            img = base64.b64decode(img)
+        else:
+            resp['errorcode'] = '请携带img参数(带缺口的背景图片)，img:base64编码后的图片二进制'
+            return HttpResponse(json.dumps(resp), content_type="application/json")
 
-      with open('1.png', 'wb')as f:
-         f.write(img)
-      f.close()
-      distence = hua_kuai.onnx_model_main('1.png')
-      distence = int(distence['leftTop'][0])
+        with open('./data/滑块拼图/1.png', 'wb') as f:
+            f.write(img)
+        f.close()
+        distence = hua_kuai.onnx_model_main('./data/滑块拼图/1.png')
+        if request.POST.get('show','') == 'True':
+            hua_kuai.drow_rectangle(distence,'./data/滑块拼图/1.png')
+        distence = int(distence['leftTop'][0])
+
+        resp['detail'] = distence
+        resp['explain'] = '图片左边框到缺口左边框距离'
 
 
-      resp['detail'] = distence
-      resp['explain'] = '图片左边框到缺口左边框距离'
 
-      return HttpResponse(json.dumps(resp), content_type="application/json")
-   else:
-      resp = {'errorcode': 100, 'detail': 'get啥呢，去post'}
-      return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+    else:
+        resp = {'errorcode': 100, 'detail': 'get啥呢，去post'}
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+# 图标点选
+def click_on_the_icon(request):
+    if request.method == 'POST':
+
+        json_dict = json.loads(request.body.decode())
+        img1 = base64.b64decode(json_dict['img1'])
+        with open('./data/图标点选/背景图.png','wb')as f:
+                f.write(img1)
+
+        num = 0
+        for i in json_dict['img2']:
+            with open('./data/图标点选/图形_{}.png'.format(num), 'wb') as f:
+
+                f.write(base64.b64decode(i))
+            num+=1
+        path = './data/图标点选/背景图.png'
+        coordinate_onnx = img_division.onnx_model_main(path)
+        num = 0
+        #矩形坐标列表
+        lists = []
+        for j in coordinate_onnx:
+
+            lists.append(j['leftTop']+j['rightBottom'])
+            image = img_division.Image.open(path)  # 读取图片
+            name = path[:-4:] + '__切割后图片_' + str(num)
+            img_division.cut_image(image, j['point'], name)
+            num += 1
+
+        model = img_similarity.Siamese()
+        #图形数量
+        num = len( json_dict['img2'])
+        #切割数量
+        nums = len(coordinate_onnx)
+        resp = {}
+
+        for i in range(num):
+            image_1 = img_similarity.Image.open('./data/图标点选/图形_{}.png'.format(i))
+
+            for j in range(nums):
+
+                image_2 = img_similarity.Image.open('./data/图标点选/背景图__切割后图片_{}.png'.format(j))
+
+                probability = model.detect_image(image_1, image_2)
+
+                # 相似度低的就直接排除了
+                if probability[0] > 0.5:
+                    print('背景图__切割后图片_{}.png'.format(i), '和', '图形_{}.png'.format(j), '相似度为：',
+                          probability)
+                    resp['img'+str(i)] = lists[i]
+
+
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
+
+    else:
+
+        resp = {'errorcode': 100, 'detail': 'get啥呢，去post'}
+        return HttpResponse(json.dumps(resp), content_type="application/json")
+
 

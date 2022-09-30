@@ -1,0 +1,16 @@
+Django==4.1.1
+keras==2.7.0
+lxml==4.9.1
+matplotlib==3.5.3
+numpy==1.23.2
+onnxruntime==1.12.1
+opencv_python==4.6.0.66
+Pillow==9.2.0
+requests==2.28.1
+scipy==1.9.1
+selenium==4.5.0
+tensorflow==2.10.0
+tensorflow_gpu==2.7.0
+torch==1.12.1
+torchvision==0.13.1
+tqdm==4.64.1

@@ -19,8 +19,9 @@ from ocr.views import *
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('ocr/',ocr),
-    path('acreage/',acreages),
-    path('slider/',slider)
+    # path('admin/', admin.site.urls),
+    path('旋转图片/',ocr),
+    path('面积点选/',acreages),
+    path('滑块拼图/',slider),
+    path('图标点选/',click_on_the_icon)
 ]

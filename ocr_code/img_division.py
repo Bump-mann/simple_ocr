@@ -1,20 +1,24 @@
+'''
+分割图标点选验证码图片的各个图标
 
+'''
+
+
+import os
+import sys
+import time
 from io import BytesIO
+
 import onnxruntime
 import torch
 import torchvision
+
 import numpy as np
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium import webdriver
-import time
+
 import cv2
-import base64
-from selenium.webdriver import ActionChains
-import random
+
+# 图像处理
 from PIL import Image
-from lxml import etree
-import requests
 
 
 def padded_resize(im, new_shape=(640, 640), stride=32):
@@ -258,7 +262,7 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
 
 def onnx_model_main(path):
     # onnx
-    session = onnxruntime.InferenceSession("models/滑块.onnx", providers=["CPUExecutionProvider"])
+    session = onnxruntime.InferenceSession("./models/图标点选_分割图片.onnx", providers=["CPUExecutionProvider"])
     start = time.time()
     image = open(path, "rb").read()
     img = np.array(Image.open(BytesIO(image)))
@@ -269,53 +273,131 @@ def onnx_model_main(path):
     # 模型调度
     pred = session.run([session.get_outputs()[0].name], {session.get_inputs()[0].name: im})[0]
     pred = torch.tensor(pred)
-    pred = non_max_suppression(pred, conf_thres=0.25, iou_thres=0.60, max_det=1000)  # 大于百分之六十的置信度
+    pred = non_max_suppression(pred, conf_thres=0.60, iou_thres=0.60, max_det=1000)  # 大于百分之六十的置信度
     coordinate_list = []
     for i, det in enumerate(pred):
         det[:, :4] = scale_coords(im.shape[2:], det[:, :4], img.shape).round()
         for *xyxy, conf, cls in reversed(det):
             # 返回坐标和置信度
             coordinates = return_coordinates(xyxy, conf)
+
+            print(coordinates)
             coordinate_list.append(coordinates)
     # 坐标列表
     coordinate = sorted(coordinate_list, key=lambda a: a["Confidence"])
+    data_list = []
     # 用时
     duration = str((time.time() - start))
     if len(coordinate) == 0:
         data = {'message': 'error', 'time': duration}
     else:
-        coordinate = coordinate[-1]
-        x = coordinate.get('leftTop')[0]
-        y = coordinate.get('leftTop')[1]
-        w = coordinate.get('rightBottom')[0] - coordinate.get('leftTop')[0]
-        h = coordinate.get('rightBottom')[1] - coordinate.get('leftTop')[1]
-        point = f"{x}|{y}|{w}|{h}"
-        data = {'message': 'success', 'time': duration, 'point': point}
-        data.update(coordinate)
-        print(data)
-    return data
-
-
-
-
+        # coordinate = coordinate[-1]
+        for coordinate in coordinate_list:
+            x = coordinate.get('leftTop')[0]
+            y = coordinate.get('leftTop')[1]
+            w = coordinate.get('rightBottom')[0] - coordinate.get('leftTop')[0]
+            h = coordinate.get('rightBottom')[1] - coordinate.get('leftTop')[1]
+            point = f"{x}|{y}|{w}|{h}"
+            data = {'message': 'success', 'time': duration, 'point': point}
+            data.update(coordinate)
+            data_list.append(data)
+    print(data_list)
+    return data_list
 
 
 def drow_rectangle(coordinate, path):
-    img = cv2.imdecode(np.fromfile(path, dtype=np.uint8), 1)
+    import os
+    if "new_%s" % path in os.listdir('./'):
+        img = cv2.imread("new_%s" % path)
+    else:
+        img = cv2.imread(path)
     # 画框
     result = cv2.rectangle(img, coordinate.get("leftTop"), coordinate.get("rightBottom"), (0, 0, 255), 2)
-    # cv2.imwrite("./data/滑动拼图/drow_rectangle.jpg", result)  # 返回圈中矩形的图片
-    cv2.imencode('.png', result)[1].tofile("data/滑块拼图/drow_rectangle.png")
-
+    cv2.imwrite("new_%s" % path, result)  # 返回圈中矩形的图片
     print("返回坐标矩形成功")
 
 
+# python install pillow
+
+
+# 分割图片
+def cut_image(image, point, name):
+    lists = point.split('|')
+
+    box = (int(lists[0]), int(lists[1]), int(lists[2]) + int(lists[0]), int(lists[3]) + int(lists[1]))
+    images = image.crop(box)
+
+    images.save('{}.png'.format(name), 'PNG')
+
+
+from os import path
+
+
+def scaner_file(url):
+    lists = []
+    # 遍历当前路径下所有文件
+    file = os.listdir(url)
+    for f in file:
+        # 字符串拼接
+        # real_url = path.join (url , f)
+        # 打印出来
+        # print(real_url)
+        lists.append([url, f])
+    return lists
+
+# Hash值对比
+def cmpHash(hash1, hash2,shape=(10,10)):
+    n = 0
+    # hash长度不同则返回-1代表传参出错
+    if len(hash1)!=len(hash2):
+        return -1
+    # 遍历判断
+    for i in range(len(hash1)):
+        # 相等则n计数+1，n最终为相似度
+        if hash1[i] == hash2[i]:
+            n = n + 1
+    return n/(shape[0]*shape[1])
+# 均值哈希算法
+def aHash(img,shape=(10,10)):
 
 
 
+    # 缩放为10*10
+    img = cv2.resize(img, shape)
+    # 转换为灰度图
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # s为像素和初值为0，hash_str为hash值初值为''
+    s = 0
+    hash_str = ''
+    # 遍历累加求像素和
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            s = s + gray[i, j]
+    # 求平均灰度
+    avg = s / 100
+    # 灰度大于平均值为1相反为0生成图片的hash值
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if gray[i, j] > avg:
+                hash_str = hash_str + '1'
+            else:
+                hash_str = hash_str + '0'
+    return hash_str
+
+'''
+
+以下是测试代码
+'''
+if __name__ == '__main__':
 
 
+    #图片路径
+    path = '../test/图标点选/背景图.png'
+    coordinate_onnx = onnx_model_main(path)
+    num = 0
+    for j in coordinate_onnx:
+        num += 1
 
-
-
-
+        image = Image.open(path)  # 读取图片
+        name = path[:-4:] + '__切割后图片_' + str(num)
+        cut_image(image, j['point'], name)
