@@ -24,9 +24,8 @@
 
 由于模型文件较大，单独放在百度云盘了，下载后放在项目目录下即可
 模型下载地址：
-链接：https://pan.baidu.com/s/1cNTjREhlXhsbKb7_hsJYwQ?pwd=maec 
-提取码：maec
-
+链接：https://pan.baidu.com/s/1rxY2x3J8wwgEsv0nBBaPPQ?pwd=cokk 
+提取码：cokk
 
 开发测试环境：
   python::3.8
