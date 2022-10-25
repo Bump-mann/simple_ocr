@@ -7,7 +7,7 @@
 
 import os
 
-import matplotlib.pyplot as plt
+import cv2
 import tensorflow as tf
 import numpy as np
 from PIL import Image
@@ -27,12 +27,12 @@ class Siamese(object):
         # -----------------------------------------------------#
         #   输入图片的大小。
         # -----------------------------------------------------#
-        "input_shape": [105, 105],
+        "input_shape": [60, 60],
         # --------------------------------------------------------------------#
         #   该变量用于控制是否使用letterbox_image对输入图像进行不失真的resize
         #   否则对图像进行CenterCrop
         # --------------------------------------------------------------------#
-        "letterbox_image": False,
+        "letterbox_image": True,
     }
 
     @classmethod
@@ -89,7 +89,7 @@ class Siamese(object):
         image_2 = letterbox_image(image_2, [self.input_shape[1], self.input_shape[0]], self.letterbox_image)
 
         # ---------------------------------------------------------#
-        #   归一化+添加上batch_size维度
+        #   归一化+添加上batch_s  ize维度
         # ---------------------------------------------------------#
         photo1 = np.expand_dims(preprocess_input(np.array(image_1, np.float32)), 0)
         photo2 = np.expand_dims(preprocess_input(np.array(image_2, np.float32)), 0)
@@ -112,7 +112,7 @@ class Siamese(object):
 
 
 '''
-以下是测试代码
+以下是测试代码 (本来想着在每个代码下面加测试来着，但是认为不好就废弃掉了)
 '''
 
 if __name__ == '__main__':

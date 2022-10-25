@@ -4,17 +4,12 @@ import onnxruntime
 import torch
 import torchvision
 import numpy as np
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from selenium import webdriver
+
 import time
 import cv2
-import base64
-from selenium.webdriver import ActionChains
-import random
+
 from PIL import Image
-from lxml import etree
-import requests
+
 
 
 def padded_resize(im, new_shape=(640, 640), stride=32):

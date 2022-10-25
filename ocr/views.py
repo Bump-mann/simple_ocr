@@ -15,6 +15,41 @@ from ocr_code import img_division
 spin_img = spin_img.my_ocr()
 
 
+#去干扰 保留数量最多的灰度及其附近值
+def  decouple(path):
+    img = cv2.imdecode(np.fromfile(path, dtype=np.uint8), 0)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    lists = []
+    for i in img:
+        for j in img:
+            for k in j:
+                lists.append(k)
+
+    dicts = {i: 0 for i in range(0, 256)}
+
+    for i in lists:
+        dicts[i] = dicts.get(i, 0) + 1
+        # dicts.get(i,1)
+
+    def getDictKey_1(myDict, value):
+        return [k for k, v in myDict.items() if v == value]
+
+    max_num = getDictKey_1(dicts, max(dicts.values()))[0] - 5
+
+
+    for i in range(len(img)):
+        for j in range(len(img[i])):
+
+            if img[i][j] > max_num + 10:
+                img[i][j] = 0
+            if img[i][j] < max_num - 10:
+                img[i][j] = 0
+    ret, binary = cv2.threshold(img, max_num, 255, cv2.THRESH_BINARY)  # 输入灰度图，实现图像二值化
+
+    cv2.imencode('.png', binary)[1].tofile(path)
+
+
 
 # 旋转
 def ocr(request):
@@ -129,6 +164,7 @@ def click_on_the_icon(request):
             num+=1
         path = './data/图标点选/背景图.png'
         coordinate_onnx = img_division.onnx_model_main(path)
+
         num = 0
         #矩形坐标列表
         lists = []
@@ -145,23 +181,29 @@ def click_on_the_icon(request):
         num = len( json_dict['img2'])
         #切割数量
         nums = len(coordinate_onnx)
+        print(coordinate_onnx)
         resp = {}
 
-        for i in range(num):
-            image_1 = img_similarity.Image.open('./data/图标点选/图形_{}.png'.format(i))
 
+        for i in range(nums):
+            decouple('./data/图标点选/背景图__切割后图片_{}.png'.format(i))
+
+        for i in range(num):
+
+            image_1 = img_similarity.Image.open('./data/图标点选/图形_{}.png'.format(i))
             for j in range(nums):
+                # images = cv2.imdecode(np.fromfile('./data/图标点选/背景图__切割后图片_{}.png'.format(i), dtype=np.uint8),1)
 
                 image_2 = img_similarity.Image.open('./data/图标点选/背景图__切割后图片_{}.png'.format(j))
 
                 probability = model.detect_image(image_1, image_2)
 
                 # 相似度低的就直接排除了
-                if probability[0] > 0.5:
+                if probability[0] > 0:
                     print('背景图__切割后图片_{}.png'.format(i), '和', '图形_{}.png'.format(j), '相似度为：',
                           probability)
                     resp['img'+str(i)] = lists[i]
-
+            print()
 
         return HttpResponse(json.dumps(resp), content_type="application/json")
 
