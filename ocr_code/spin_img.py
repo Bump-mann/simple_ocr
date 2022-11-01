@@ -109,7 +109,7 @@ class my_ocr():
         M[1, 2] += (new_h - h) / 2
 
         rotated_img = cv2.warpAffine(img, M, (new_w, new_h))
-        cv2.imencode('.png', rotated_img)[1].tofile('./data/旋转角度/1.png')
+        cv2.imencode('.png', rotated_img)[1].tofile('./data/旋转角度/drow_rectangle.png')
 
         return rotated_img
 

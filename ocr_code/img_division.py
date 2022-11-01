@@ -273,7 +273,7 @@ def onnx_model_main(path):
     # 模型调度
     pred = session.run([session.get_outputs()[0].name], {session.get_inputs()[0].name: im})[0]
     pred = torch.tensor(pred)
-    pred = non_max_suppression(pred, conf_thres=0.60, iou_thres=0.60, max_det=1000)  # 大于百分之六十的置信度
+    pred = non_max_suppression(pred, conf_thres=0.6, iou_thres=0.6, max_det=1000)  # 大于百分之六十的置信度
     coordinate_list = []
     for i, det in enumerate(pred):
         det[:, :4] = scale_coords(im.shape[2:], det[:, :4], img.shape).round()
@@ -392,7 +392,7 @@ if __name__ == '__main__':
 
 
     #图片路径
-    path = '../test/图标点选/背景图.png'
+    path = r'C:\Users\qiu_feng\Desktop\d1e81bb61df84abfaa41ae92a5e6c787.jpg'
     coordinate_onnx = onnx_model_main(path)
     num = 0
     for j in coordinate_onnx:
@@ -401,3 +401,5 @@ if __name__ == '__main__':
         image = Image.open(path)  # 读取图片
         name = path[:-4:] + '__切割后图片_' + str(num)
         cut_image(image, j['point'], name)
+
+

@@ -14,14 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,re_path
 from ocr.views import *
-
+from test_page.views import *
 
 urlpatterns = [
     # path('admin/', admin.site.urls),
-    path('旋转图片/',ocr),
-    path('面积点选/',acreages),
-    path('滑块拼图/',slider),
-    path('图标点选/',click_on_the_icon)
+    path('旋转图片/',ocr,name='旋转图片'),
+    path('面积点选/',acreages,name='面积点选'),
+    path('滑块拼图/',slider,name='滑块拼图'),
+    path('图标点选/',click_on_the_icon,name='图标点选'),
+    re_path('index/.*?',index,name='index'),
+    path('测试/',test,name='测试')
 ]

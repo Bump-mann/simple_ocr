@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)http://146.56.204.113:19199/preview?project_name=muggle_ocr -->
+<html lang="en" class="h-100">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta http-equiv="refresh" content="300">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords"
+          content="点选验证码,极验验证码识别,极验 验证码,极验验证码,易盾 验证码,点选验证码识别, 点选 验证码,易盾,点选验证码识别">
+    <meta name="Description"
+          content="点选验证码,极验验证码识别,极验 验证码,极验验证码,易盾 验证码,点选验证码识别, 点选 验证码,易盾,点选验证码识别">
+
+    <title>simple_ocr 验证码识别测试页面</title>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="icon" href="http://146.56.204.113:19199/static/favicon.ico">
+    <script src="/static/js/jquery.min.js.下载"></script>
+    <!--    <script src="https://v.vaptcha.com/v3.js"></script>-->
+    <script src="/static/js/bootstrap.min.js.下载"
+            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+            crossorigin="anonymous"></script>
+</head>
+
+<body>
+<!-- Begin page content -->
+<main role="main">
+    <!--<div class="progress" style="height: 2px;">-->
+    <!-- <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>-->
+    <!--</div>-->
+    <div class="container">
+        <div class="row justify-content-center">
+            <h1 class="mt-5">simple_ocr 验证码识别测试页面</h1>
+
+        </div>
+        <div class="row justify-content-center">
+            <p class="lead"></p>
+        </div>
+        <div class="row justify-content-center">
+            <p class="lead">本项目已开源，地址：<a href="https://github.com/Bump-mann/simple_ocr">https://github.com/Bump-mann/simple_ocr</a>
+            </p>
+            <p class="lead">交流群QQ:949504676<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=nwweEhKd2sSynSyPMTss0sLnDL-IUF0W&jump_from=webapi&authKey=j3Cj9KJemTU87BPFxOmRa0ZMCMB92b1j6EbPM2ppAQ7i35bU38JNnByn7mH+xlKx"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="simple_ocr" title="simple_ocr"></a></p>
+            <p class="lead">因为每次请求都会重新加载模型，识别速度会很慢，后续会优化该问题（旋转为优化后效果）</p>
+
+        </div>
+
+        <div class="row justify-content-center">
+            <a class="inner" href="/index/?type=通用滑块">通用滑块</a>&nbsp;&nbsp;|&nbsp;
+            <a class="inner" href="/index/?type=旋转(百度贴吧)">旋转(百度贴吧)</a>&nbsp;&nbsp;|&nbsp;
+
+
+        </div>
+        <div class="row justify-content-center">
+          <img src="{{ img_data }}" class="img-thumbnail rounded" id="originImage">-->
+
+        </div>
+        <div class="row justify-content-center">
+            <img class="img-thumbnail rounded" id="previewImage">
+        </div>
+
+
+        <div class="row justify-content-center">
+            <p id="consume"></p>
+        </div>
+        <div class="row justify-content-center mt-3">
+            <input type="file" id="customImage" hidden="">
+            <input type="file" id="customTitle" hidden="">
+
+            <input id="imageData" type="hidden"
+                   value="{{ img_data }}">
+
+            <input id="titleData" type="hidden" value="">
+
+            <input type="hidden" class="form-control" id="projectName" value="{{ type }}">
+
+            <form class="form-inline">
+                <div class="form-group mx-sm-3">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button class="btn btn-success" type="button" id="uploadImage">
+                            选择主图
+                        </button>
+                        <button class="btn btn-primary" type="button" id="submit">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="loading"
+                                  style="margin-bottom: 1px;" hidden=""></span>
+                            上传识别
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+    function validate() {
+        return new Promise(function (resolve) {
+            vaptcha({
+                vid: "5f378139fa22adfebb4ea123",
+                type: "invisible",
+                scene: 0,
+            }).then(function (vaptchaObj) {
+                vaptchaObj.listen("pass", function () {
+                    resolve(vaptchaObj.getToken())
+                });
+
+                vaptchaObj.listen("close", function () {
+                    resolve(null)
+                });
+
+                vaptchaObj.validate();
+            });
+        })
+    }
+
+    $("#customImage").on("change", function () {
+        var reader = new FileReader();
+        reader.readAsDataURL(document.getElementById("customImage").files[0]);
+        reader.onload = async function (e) {
+            var image = this.result;
+            $("#customImage").val("");
+            $("#imageData").val(image);
+            if ($("#originImage").length > 0) {
+                $("#originImage").attr("src", image);
+            } else {
+                $("#previewImage").attr("src", image);
+            }
+
+        };
+    });
+    $("#customTitle").on("change", function () {
+        var reader = new FileReader();
+        reader.readAsDataURL(document.getElementById("customTitle").files[0]);
+        reader.onload = async function (e) {
+            var image = this.result;
+            $("#customTitle").val("");
+            $("#titleData").val(image);
+            $("#previewTitle").attr("src", image);
+        };
+    });
+
+    $("#uploadImage").on("click", function () {
+        $("#customImage").click();
+    });
+    $("#uploadTitle").on("click", function () {
+        $("#customTitle").click();
+    });
+
+    $("#submit").on("click", async function () {
+        $("#loading").prop("hidden", false);
+        $("#submit").prop("disabled", true);
+
+        var img = $("#imageData").val();
+        var title = $("#titleData").val() ? $("#titleData").val() : $("#title").val();
+        var show = 'True'
+        var project_name = $("#projectName").val();
+        $.ajax({
+            type: "POST",
+            url: "/测试/",
+            data: {
+                img,
+                project_name,
+                title,
+                show,
+            },
+            success: function (data) {
+                $("#loading").prop("hidden", true);
+                $("#submit").prop("disabled", false);
+                $("#imageBase64").val("");
+
+                if (!data.success) return alert(data.data);
+                $("#previewImage").attr("src", "data:image/bmp;base64," + data.data);
+
+                // document.getElementById("imageOrigin").style.display  = "none";
+                // document.getElementById("imageTarget").style.display  = div_display;
+                document.getElementById("consume").innerText = "耗时: " + data.consume.toFixed(0) + " 毫秒";
+            },
+            error: function (data, status, e) {
+                $("#loading").prop("hidden", true);
+                $("#submit").prop("disabled", false);
+                alert(e);
+            },
+            dataType: "json"
+        });
+    });
+</script>
+
+
+</body>
+</html>

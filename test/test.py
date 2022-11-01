@@ -111,7 +111,7 @@ if __name__ == '__main__':
     调用案例示范~ 
     
     '''
-    tu_biao()
-    # hua_kuai()
+    # tu_biao()
+    hua_kuai()
     # mian_ji()
     # xuanz_zhuan()
