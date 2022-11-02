@@ -25,5 +25,9 @@ urlpatterns = [
     path('滑块拼图/',slider,name='滑块拼图'),
     path('图标点选/',click_on_the_icon,name='图标点选'),
     re_path('index/.*?',index,name='index'),
-    path('测试/',test,name='测试')
+    path('测试/',test,name='测试'),
+
 ]
+
+
+
