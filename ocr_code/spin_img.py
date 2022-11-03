@@ -18,7 +18,7 @@ class my_ocr():
     def __init__(self):
         # physical_devices = tf.config.list_physical_devices('GPU')
         # tf.config.experimental.set_memory_growth(physical_devices[0], True)
-        self.model = tf.keras.models.load_model(os.path.abspath("models\旋转验证码.hdf5"), custom_objects={'angle_error':self.angle_error})
+        self.model = tf.keras.models.load_model(os.path.abspath("models/旋转验证码.hdf5"), custom_objects={'angle_error':self.angle_error})
 
     def angle_difference(self,x, y):
         return 180 - abs(abs(x - y) - 180)
