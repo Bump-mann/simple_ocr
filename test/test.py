@@ -111,7 +111,7 @@ if __name__ == '__main__':
     调用案例示范~ 
     
     '''
-    tu_biao()
-    # hua_kuai()
+    # tu_biao()
+    hua_kuai()
     # mian_ji()
-    # xuanz_zhuan()
+    # xuanz_zhuan()  pscp  -r D:\工作\simple_ocr\models  root@119.3.219.181:/opt/simple_ocr
