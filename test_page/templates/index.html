@@ -5,19 +5,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
     <meta http-equiv="refresh" content="300">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="keywords"
-          content="点选验证码,极验验证码识别,极验 验证码,极验验证码,易盾 验证码,点选验证码识别, 点选 验证码,易盾,点选验证码识别">
-    <meta name="Description"
-          content="点选验证码,极验验证码识别,极验 验证码,极验验证码,易盾 验证码,点选验证码识别, 点选 验证码,易盾,点选验证码识别">
 
     <title>simple_ocr 验证码识别测试页面</title>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css"
           integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="icon" href="http://146.56.204.113:19199/static/favicon.ico">
-    <script src="/static/js/jquery.min.js.下载"></script>
+    <script src="/static/js/jquery.min.js"></script>
     <!--    <script src="https://v.vaptcha.com/v3.js"></script>-->
-    <script src="/static/js/bootstrap.min.js.下载"
+    <script src="/static/js/bootstrap.min.js"
             integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
             crossorigin="anonymous"></script>
 </head>
@@ -48,12 +43,17 @@
             <a class="inner" href="/index/?type=通用滑块">通用滑块</a>&nbsp;&nbsp;|&nbsp;
             <a class="inner" href="/index/?type=旋转(百度贴吧)">旋转(百度贴吧)</a>&nbsp;&nbsp;|&nbsp;
              <a class="inner" href="/index/?type=面积点选">面积点选</a>&nbsp;&nbsp;|&nbsp;
+             <a class="inner" href="/index/?type=图标点选(顶象)">图标点选(顶象)</a>&nbsp;&nbsp;|&nbsp;
+
 
         </div>
         <div class="row justify-content-center">
           <img src="{{ img_data }}" class="img-thumbnail rounded" id="originImage">
 
         </div>
+          <div class="row justify-content-center">
+                    <img src="{{ title_data }}" class="img-thumbnail rounded" style="width: 400px" id="previewTitle">
+                </div>
         <div class="row justify-content-center">
             <img class="img-thumbnail rounded" id="previewImage">
         </div>
@@ -69,9 +69,10 @@
             <input id="imageData" type="hidden"
                    value="{{ img_data }}">
 
-            <input id="titleData" type="hidden" value="">
+            <input id="titleData" type="hidden" value="{{ title_data }}">
 
             <input type="hidden" class="form-control" id="projectName" value="{{ type }}">
+
 
             <form class="form-inline">
                 <div class="form-group mx-sm-3">
@@ -79,6 +80,13 @@
                         <button class="btn btn-success" type="button" id="uploadImage">
                             选择主图
                         </button>
+                        {% if input == 1 %}
+                            <button class="btn btn-success" type="button" id="uploadTitle">
+                                选择标题
+                              </button>
+
+                        {% endif %}
+
                         <button class="btn btn-primary" type="button" id="submit">
                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id="loading"
                                   style="margin-bottom: 1px;" hidden=""></span>

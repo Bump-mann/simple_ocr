@@ -58,7 +58,7 @@ def tu_biao():
         'show': True  # 此参数可以不携带  为True时，会旋转图片
 
     }
-    resonse = requests.post('http://127.0.0.1:8000/图标点选/',json=data).text
+    resonse = requests.post('http://119.3.219.181:8000/图标点选/',json=data).text
     print(resonse)
 
 #滑块拼图·
@@ -73,7 +73,7 @@ def hua_kuai():
         'show':True        #此参数可以不携带  为True时，会在图片上画一个红框
 
     }
-    response = requests.post('http://127.0.0.1:8000/滑块拼图/',data=data).json()
+    response = requests.post('http://119.3.219.181:8000/滑块拼图/',data=data).json()
     print(response)
 
 #面积点选
@@ -89,7 +89,7 @@ def mian_ji():
         'show':True        #此参数可以不携带  为True时，会在图片上画一个红框
 
     }
-    response = requests.post('http://127.0.0.1:8000/面积点选/',data=data).json()
+    response = requests.post('http://119.3.219.181:8000/面积点选/',data=data).json()
     print(response)
 
 
@@ -102,7 +102,7 @@ def xuanz_zhuan():
         'img':img,
         'show':'True'
     }
-    resource = requests.post('http://127.0.0.1:8000/旋转图片/',data).json()
+    resource = requests.post('http://119.3.219.181:8000/旋转图片/',data).json()
     print(resource)
 
 
@@ -111,7 +111,10 @@ if __name__ == '__main__':
     调用案例示范~ 
     
     '''
-    # tu_biao()
-    hua_kuai()
+    tu_biao()
+    # hua_kuai()
     # mian_ji()
-    # xuanz_zhuan()  pscp  -r D:\工作\simple_ocr\models  root@119.3.219.181:/opt/simple_ocr
+    # xuanz_zhuan()
+
+
+    #  pscp  -r D:\工作\simple_ocr\models  root@119.3.219.181:/opt/simple_ocr
