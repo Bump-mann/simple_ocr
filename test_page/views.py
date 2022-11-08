@@ -7,7 +7,7 @@ import time
 from django.http import HttpResponse
 import json
 from ocr.views import *
-from ocr_api.urls import *
+from simple_ocr.urls import *
 
 
 def index(request):
