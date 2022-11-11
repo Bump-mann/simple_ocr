@@ -72,10 +72,6 @@ def ocr(request):
         resp['explain'] = '顺时针旋转角度'
 
 
-        if request.POST.get('show','') == 'True':
-            img_init = cv2.imdecode(np.fromfile('./data/旋转角度/1.png', dtype=np.uint8), 1)
-
-            spin_img.rotate_img(img_init, 360-int(result))
 
 
         return HttpResponse(json.dumps(resp), content_type="application/json")
@@ -105,8 +101,6 @@ def acreages(request):
         result = acreages.mains()
         resp['detail'] = result
         resp['explain'] = '点击位置的坐标'
-        if request.POST.get('show') == 'True':
-            pass
 
         return HttpResponse(json.dumps(resp), content_type="application/json")
     else:
@@ -191,8 +185,8 @@ def click_on_the_icon(request):
         for i in range(num):
 
             image_1 = img_similarity.Image.open('./data/图标点选/图形_{}.png'.format(i))
+            max_probability = 0
             for j in range(nums):
-                # images = cv2.imdecode(np.fromfile('./data/图标点选/背景图__切割后图片_{}.png'.format(i), dtype=np.uint8),1)
 
                 image_2 = img_similarity.Image.open('./data/图标点选/背景图__切割后图片_{}.png'.format(j))
 
@@ -202,8 +196,31 @@ def click_on_the_icon(request):
                 if probability[0] > 0:
                     print('背景图__切割后图片_{}.png'.format(i), '和', '图形_{}.png'.format(j), '相似度为：',
                           probability)
-                    resp['img'+str(i)] = lists[i]
+                    if probability[0] > max_probability:
+                        max_probability = probability[0]
+                        resp['img' + str(i)] = lists[j]
+
+
+            # resp['img'+str(i)] = max_probability
             print()
+        print(resp)
+
+        num = 0
+        for i in resp.values():
+            if num == 0:
+                img = cv2.imdecode(np.fromfile('./data/图标点选/背景图.png', dtype=np.uint8), 1)
+            else:
+                img = cv2.imdecode(np.fromfile('./data/图标点选/drow_rectangle.png', dtype=np.uint8), 1)
+
+        # 画框
+            result = cv2.rectangle(img,i[0:2:],i[2:4:], (0, 0, 255), 2)
+            cv2.putText(result, str(num), (int((i[0]+i[2])/2),int( (i[1]+i[3])/2)), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.7, (255, 255, 0), 1, cv2.LINE_AA)
+
+            cv2.imencode('.png', result)[1].tofile(r"./data/图标点选/drow_rectangle.png")
+
+            print("返回坐标矩形成功")
+            num+=1
 
         return HttpResponse(json.dumps(resp), content_type="application/json")
 

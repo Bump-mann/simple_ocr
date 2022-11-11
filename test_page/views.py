@@ -99,6 +99,20 @@ def classify(types,request):
         return json_data
     elif types == '图标点选(顶象)':
 
+
+        dicts = {}
+        dicts['img1'] =  request.POST.get('img')
+        dicts['img2'] = [request.POST.get('title')]
+        # #修改状态
+        # data = request.POST
+        # _mutable = data._mutable
+        # data._mutable = True
+        #
+        request._body  = str(json.dumps(dicts)).encode()
+        # #恢复状态
+        # data._mutable = _mutable
+
+
         start = time.time()*1000
 
         json_data = click_on_the_icon(request).content
@@ -130,6 +144,12 @@ def test(request):
         img_data = base64.urlsafe_b64decode(img_data)
         img_data = base64.b64encode(img_data).decode()
         data['img'] = img_data
+        if data.get('title'):
+            img_data = data['title']
+            img_data = img_data.split(',')[-1]
+            img_data = base64.urlsafe_b64decode(img_data)
+            img_data = base64.b64encode(img_data).decode()
+            data['title'] = img_data
 
         #恢复状态
         data._mutable = _mutable
