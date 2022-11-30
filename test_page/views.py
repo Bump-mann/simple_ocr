@@ -161,7 +161,6 @@ def test(request):
 
 
 
-        print(json_data)
         return HttpResponse(json.dumps(json_data), content_type="application/json")
 
     else:
