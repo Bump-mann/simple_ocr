@@ -1,18 +1,24 @@
 import cv2
 import numpy as np
-
 import json
 from django.http import HttpResponse
+import base64
+from PIL import Image
+
+
 from ocr_code import spin_img
 from ocr_code import acreage
 from ocr_code import hua_kuai
-import base64
 from ocr_code import img_similarity
 from ocr_code import img_division
 
 
+
 #如果不使用旋转验证码识别可注释掉
 spin_img = spin_img.my_ocr()
+hua_kuai = hua_kuai.slider()
+img_qwe = img_division.img_qwe()
+model = img_similarity.Siamese()
 
 
 #去干扰 保留数量最多的灰度及其附近值
@@ -124,8 +130,7 @@ def slider(request):
             f.write(img)
         f.close()
         distence = hua_kuai.onnx_model_main('./data/滑块拼图/1.png')
-        if request.POST.get('show','') == 'True':
-            hua_kuai.drow_rectangle(distence,'./data/滑块拼图/1.png')
+        hua_kuai.drow_rectangle(distence,'./data/滑块拼图/1.png')
         distence = int(distence['leftTop'][0])
 
         resp['detail'] = distence
@@ -157,7 +162,7 @@ def click_on_the_icon(request):
                 f.write(base64.b64decode(i))
             num+=1
         path = './data/图标点选/背景图.png'
-        coordinate_onnx = img_division.onnx_model_main(path)
+        coordinate_onnx = img_qwe.onnx_model_main(path)
 
         num = 0
         #矩形坐标列表
@@ -165,12 +170,11 @@ def click_on_the_icon(request):
         for j in coordinate_onnx:
 
             lists.append(j['leftTop']+j['rightBottom'])
-            image = img_division.Image.open(path)  # 读取图片
+            image = Image.open(path)  # 读取图片
             name = path[:-4:] + '__切割后图片_' + str(num)
             img_division.cut_image(image, j['point'], name)
             num += 1
 
-        model = img_similarity.Siamese()
         #图形数量
         num = len( json_dict['img2'])
         #切割数量
@@ -184,11 +188,11 @@ def click_on_the_icon(request):
 
         for i in range(num):
 
-            image_1 = img_similarity.Image.open('./data/图标点选/图形_{}.png'.format(i))
+            image_1 = Image.open('./data/图标点选/图形_{}.png'.format(i))
             max_probability = 0
             for j in range(nums):
 
-                image_2 = img_similarity.Image.open('./data/图标点选/背景图__切割后图片_{}.png'.format(j))
+                image_2 = Image.open('./data/图标点选/背景图__切割后图片_{}.png'.format(j))
 
                 probability = model.detect_image(image_1, image_2)
 

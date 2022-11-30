@@ -251,58 +251,63 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
     return coords
 
 
-def onnx_model_main(path):
-    # onnx
-    session = onnxruntime.InferenceSession("models/滑块.onnx", providers=["CPUExecutionProvider"])
-    start = time.time()
-    image = open(path, "rb").read()
-    img = np.array(Image.open(BytesIO(image)))
-    # img = cv2.imread(path)
-    # 图像处理
-    img = img[:, :, :3]
-    im = padded_resize(img)
-    # 模型调度
-    pred = session.run([session.get_outputs()[0].name], {session.get_inputs()[0].name: im})[0]
-    pred = torch.tensor(pred)
-    pred = non_max_suppression(pred, conf_thres=0.25, iou_thres=0.60, max_det=1000)  # 大于百分之六十的置信度
-    coordinate_list = []
-    for i, det in enumerate(pred):
-        det[:, :4] = scale_coords(im.shape[2:], det[:, :4], img.shape).round()
-        for *xyxy, conf, cls in reversed(det):
-            # 返回坐标和置信度
-            coordinates = return_coordinates(xyxy, conf)
-            coordinate_list.append(coordinates)
-    # 坐标列表
-    coordinate = sorted(coordinate_list, key=lambda a: a["Confidence"])
-    # 用时
-    duration = str((time.time() - start))
-    if len(coordinate) == 0:
-        data = {'message': 'error', 'time': duration}
-    else:
-        coordinate = coordinate[-1]
-        x = coordinate.get('leftTop')[0]
-        y = coordinate.get('leftTop')[1]
-        w = coordinate.get('rightBottom')[0] - coordinate.get('leftTop')[0]
-        h = coordinate.get('rightBottom')[1] - coordinate.get('leftTop')[1]
-        point = f"{x}|{y}|{w}|{h}"
-        data = {'message': 'success', 'time': duration, 'point': point}
-        data.update(coordinate)
-        print(data)
-    return data
+class slider():
+
+    def __init__(self):
+        self.session = onnxruntime.InferenceSession("models/滑块.onnx", providers=["CPUExecutionProvider"])
+
+
+    def onnx_model_main(self,path):
+        # onnx
+        start = time.time()
+        image = open(path, "rb").read()
+        img = np.array(Image.open(BytesIO(image)))
+        # img = cv2.imread(path)
+        # 图像处理
+        img = img[:, :, :3]
+        im = padded_resize(img)
+        # 模型调度
+        pred = self.session.run([self.session.get_outputs()[0].name], {self.session.get_inputs()[0].name: im})[0]
+        pred = torch.tensor(pred)
+        pred = non_max_suppression(pred, conf_thres=0.25, iou_thres=0.60, max_det=1000)  # 大于百分之六十的置信度
+        coordinate_list = []
+        for i, det in enumerate(pred):
+            det[:, :4] = scale_coords(im.shape[2:], det[:, :4], img.shape).round()
+            for *xyxy, conf, cls in reversed(det):
+                # 返回坐标和置信度
+                coordinates = return_coordinates(xyxy, conf)
+                coordinate_list.append(coordinates)
+        # 坐标列表
+        coordinate = sorted(coordinate_list, key=lambda a: a["Confidence"])
+        # 用时
+        duration = str((time.time() - start))
+        if len(coordinate) == 0:
+            data = {'message': 'error', 'time': duration}
+        else:
+            coordinate = coordinate[-1]
+            x = coordinate.get('leftTop')[0]
+            y = coordinate.get('leftTop')[1]
+            w = coordinate.get('rightBottom')[0] - coordinate.get('leftTop')[0]
+            h = coordinate.get('rightBottom')[1] - coordinate.get('leftTop')[1]
+            point = f"{x}|{y}|{w}|{h}"
+            data = {'message': 'success', 'time': duration, 'point': point}
+            data.update(coordinate)
+            print(data)
+        return data
 
 
 
 
 
 
-def drow_rectangle(coordinate, path):
-    img = cv2.imdecode(np.fromfile(path, dtype=np.uint8), 1)
-    # 画框
-    result = cv2.rectangle(img, coordinate.get("leftTop"), coordinate.get("rightBottom"), (0, 0, 255), 2)
-    # cv2.imwrite("./data/滑动拼图/drow_rectangle.jpg", result)  # 返回圈中矩形的图片
-    cv2.imencode('.png', result)[1].tofile("data/滑块拼图/drow_rectangle.png")
+    def drow_rectangle(self,coordinate, path):
+        img = cv2.imdecode(np.fromfile(path, dtype=np.uint8), 1)
+        # 画框
+        result = cv2.rectangle(img, coordinate.get("leftTop"), coordinate.get("rightBottom"), (0, 0, 255), 2)
+        # cv2.imwrite("./data/滑动拼图/drow_rectangle.jpg", result)  # 返回圈中矩形的图片
+        cv2.imencode('.png', result)[1].tofile("data/滑块拼图/drow_rectangle.png")
 
-    print("返回坐标矩形成功")
+        print("返回坐标矩形成功")
 
 
 
